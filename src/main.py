@@ -10,8 +10,8 @@ def _get_row_from_file(csvfile):
         
     
 def _get_name(csvfile):
-    name = "{}".format(csvfile.replace('data/', '').replace('.csv', ''))        
-    name_with_spaces = [' ' + char if char.isupper() else char for char in name]
+    name = "{}".format(csvfile.replace('data/', '').replace('.csv', '').strip())        
+    name_with_spaces = [' ' + char if char.isupper() and idx > 0 else char for idx, char in enumerate(name)]
     return ''.join(name_with_spaces)
 
 
