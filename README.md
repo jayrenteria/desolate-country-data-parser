@@ -3,7 +3,9 @@ Converts a CSV to a JSON for the Desolate County Project.
 
 ## Running
 
-`pipenv run python src/main.py data/Name.csv`
+Put the xlsx file in `/data` and name it `data.xlsx`.
+
+Then `pipenv run python src/main.py`
 
 ## Contributing
 

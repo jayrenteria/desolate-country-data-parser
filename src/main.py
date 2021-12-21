@@ -1,41 +1,38 @@
-import csv
 import json
-import sys
+import pandas as pd
 
 
-def _get_row_from_file(csvfile):
-    with open(csvfile) as input:
-        for row in csv.DictReader(input.read().split("\n")):
-            yield row
-        
-    
-def _get_name(csvfile):
-    name = "{}".format(csvfile.replace('data/', '').replace('.csv', '').strip())        
-    name_with_spaces = [' ' + char if char.isupper() and idx > 0 else char for idx, char in enumerate(name)]
-    return ''.join(name_with_spaces)
+def parse_gps(value):
+    return float(value) if value != 'Unknown' else value
 
 
-def handle(csvfile):
+def parse_yes_no(value):
+    return True if value == 'Y' else False if value == 'N' else value  
+
+
+def handle():
     data = []
-    for row in _get_row_from_file(csvfile):
-        clean_row = {'name': _get_name(csvfile)}
-        for key, value in row.items():
-            # make keys lowercase, remove spaces
-            key = key.lower().replace(' ', '_').replace('_(y/n)', '')
+    filename = 'data/data.xlsx'
+    xls = pd.read_excel(filename, sheet_name=None, index_col=None)
+    for sheet_name in xls.keys():
+        df = xls[sheet_name]
+        for idx, row in df.iterrows():    
+            clean_row = {
+                'name': sheet_name,
+                'year': row[0],
+                'name_of_institution': row[1],
+                'latitude': parse_gps(row[2]),
+                'longitude': parse_gps(row[3]),
+                'institution_type': row[4],
+                'native_serving_mission': parse_yes_no(row[5]),
+                'abuse_claim': parse_yes_no(row[6])
+            }
+            data.append(clean_row)
 
-            # cast lat, lng to float and yes/no into True/False
-            value = float(value) if key in ['latitude', 'longitude'] else value
-            value = True if value == 'Y' else False if value == 'N' else value  
-
-            # get rid of columns we don't need
-            if key not in ['misc', '']:
-                clean_row[key] = value
-        data.append(clean_row)
-
-    jsonfile = "{}.json".format(csvfile.rstrip('.csv'))
+    jsonfile = "data/data.json"
     with open(jsonfile, 'w', encoding='utf-8') as output:
         output.write(json.dumps(data, indent=4))
 
 
 if __name__ == '__main__':
-    handle(sys.argv[1])
+    handle()
