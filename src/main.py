@@ -7,7 +7,7 @@ def parse_gps(value):
 
 
 def parse_yes_no(value):
-    return True if value == 'Y' else False if value == 'N' else value  
+    return True if value == 'Y' else False if value == 'N' else 'Unknown' 
 
 
 def handle():
@@ -16,7 +16,12 @@ def handle():
     xls = pd.read_excel(filename, sheet_name=None, index_col=None)
     for sheet_name in xls.keys():
         df = xls[sheet_name]
-        for idx, row in df.iterrows():    
+        for idx, row in df.iterrows():
+            # Some rows don't have the data we need
+            # some are empty floats, so we'll skip them
+            # some have no gps data
+            if type(row[1]) == float or row[2] == 'Unknown':
+                continue
             clean_row = {
                 'name': sheet_name,
                 'year': row[0],
